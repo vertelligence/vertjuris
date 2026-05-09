@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Vertelligence LLC Agreements Ingest</title>
+  <link rel="stylesheet" href="/app.css">
+</head>
+<body>
+  <header class="topbar">
+    <img src="/vert-logo.jpg" alt="Vert" class="logo">
+    <h1>\\/ertelligence Law and Policy Ingest</h1>
+  </header>
+
+  <main>
+    <% if error %>
+      <div class="banner banner--error"><strong>Error:</strong> <%= h(error) %></div>
+    <% end %>
+    <% if success %>
+      <div class="banner banner--success"><%= h(success) %></div>
+    <% end %>
+
+    <form id="ingest-form" method="post" action="/agreements" autocomplete="off">
+      <section class="config">
+        <h2>Destination</h2>
+        <div class="config__grid">
+          <label>
+            <span>Rails API URL</span>
+            <input type="url" name="rails_url" value="<%= h(rails_url) %>" placeholder="http://127.0.0.1:9898" required>
+          </label>
+          <label>
+            <span>API token</span>
+            <input type="password" name="api_token" value="<%= h(api_token) %>" placeholder="Bearer token" required>
+          </label>
+        </div>
+      </section>
+
+      <section class="grid-section">
+        <div class="grid-section__head">
+          <h2>Rows <span class="muted">(max <%= max_rows %>) — paste from Excel, Sheets, or CSV directly into any cell</span></h2>
+          <div class="actions">
+            <button type="button" id="clear-btn" class="btn btn--ghost">Clear all</button>
+            <button type="submit" id="submit-btn" class="btn btn--primary">Submit batch</button>
+          </div>
+        </div>
+
+        <div class="grid-wrap">
+          <table class="grid" id="grid">
+            <thead>
+              <tr>
+                <th class="rownum">#</th>
+                <% columns.each do |col| %>
+                  <th>
+                    <div class="col-label"><%= h(col[:label]) %></div>
+                    <% unless col[:hint].empty? %>
+                      <div class="col-hint"><%= h(col[:hint]) %></div>
+                    <% end %>
+                  </th>
+                <% end %>
+              </tr>
+            </thead>
+            <tbody>
+              <% (0...max_rows).each do |i| %>
+                <tr data-row="<%= i %>">
+                  <td class="rownum"><%= i + 1 %></td>
+                  <% columns.each do |col| %>
+                    <td>
+                      <input
+                        type="text"
+                        name="rows[<%= i %>][<%= col[:key] %>]"
+                        data-col="<%= col[:key] %>"
+                        data-row="<%= i %>"
+                      >
+                    </td>
+                  <% end %>
+                </tr>
+              <% end %>
+            </tbody>
+          </table>
+        </div>
+
+        <p class="muted footnote">
+          Paste tip: copy a block from Excel/Sheets (tab-separated) or a CSV file (comma-separated, with quotes around fields containing commas). Both are auto-detected. Cells overflow into adjacent columns; extra rows append until the <%= max_rows %>-row cap.
+        </p>
+      </section>
+    </form>
+  </main>
+
+  <script src="/app.js"></script>
+</body>
+</html>
