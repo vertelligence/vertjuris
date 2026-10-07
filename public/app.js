@@ -1,6 +1,7 @@
 // Vert Agreements Ingest — grid behavior
 // - Paste from Excel/Sheets (TSV) or plain CSV (with quoted fields)
 // - Either/or validation: each non-empty row must have public_id or jurisdiction_name
+// - A citation cites the law on its row, so it needs a Law Name
 // - Basic ISO date sanity check before submit
 
 (function () {
@@ -18,7 +19,8 @@
     'description',
     'year',
     'date_accepted',
-    'entry_into_force'
+    'entry_into_force',
+    'citation'
   ];
 
   const allInputs = () => Array.from(grid.querySelectorAll('tbody input'));
@@ -196,6 +198,14 @@
         get('jurisdiction_name').classList.add('cell-error');
         tr.classList.add('row-error');
         errors.push(`Row ${idx + 1}: needs Jurisdiction#public_id or Jurisdiction#name.`);
+      }
+
+      // A citation is only kept alongside the law it cites
+      if (get('citation').value.trim() !== '' && get('agreement_name').value.trim() === '') {
+        get('citation').classList.add('cell-error');
+        get('agreement_name').classList.add('cell-error');
+        tr.classList.add('row-error');
+        errors.push(`Row ${idx + 1}: a Citation needs a Law Name.`);
       }
 
       // Format checks (only if value is provided — these fields are optional)

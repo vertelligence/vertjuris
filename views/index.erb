@@ -2,16 +2,25 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Vertelligence LLC Agreements Ingest</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="/app.css">
 </head>
 <body>
-  <header class="topbar">
-    <img src="/vert-logo.jpg" alt="Vert" class="logo">
-    <h1>\\/ertelligence Law and Policy Ingest</h1>
+  <a class="skip-link" href="#main">Skip to content</a>
+
+  <header class="vt-header">
+    <a class="vt-header__brand" href="/" aria-label="Vertelligence home">
+      <img src="/vert-logo.svg" alt="" width="35" height="32">
+      <span class="vt-header__name">Vertelligence</span>
+    </a>
+    <h1 class="vt-header__tool">Law and Policy Ingest</h1>
   </header>
 
-  <main>
+  <main id="main" class="wrap">
     <% if error %>
       <div class="banner banner--error"><strong>Error:</strong> <%= h(error) %></div>
     <% end %>
@@ -20,8 +29,8 @@
     <% end %>
 
     <form id="ingest-form" method="post" action="/agreements" autocomplete="off">
-      <section class="config">
-        <h2>Destination</h2>
+      <section class="config-panel">
+        <h2 class="eyebrow">Destination</h2>
         <div class="config__grid">
           <label>
             <span>Rails API URL</span>
@@ -34,12 +43,12 @@
         </div>
       </section>
 
-      <section class="grid-section">
-        <div class="grid-section__head">
+      <section class="card">
+        <div class="card__head">
           <h2>Rows <span class="muted">(max <%= max_rows %>) — paste from Excel, Sheets, or CSV directly into any cell</span></h2>
           <div class="actions">
-            <button type="button" id="clear-btn" class="btn btn--ghost">Clear all</button>
-            <button type="submit" id="submit-btn" class="btn btn--primary">Submit batch</button>
+            <button type="button" id="clear-btn" class="vt-btn vt-btn--ghost">Clear all</button>
+            <button type="submit" id="submit-btn" class="vt-btn vt-btn--primary">Submit batch</button>
           </div>
         </div>
 
@@ -49,7 +58,7 @@
               <tr>
                 <th class="rownum">#</th>
                 <% columns.each do |col| %>
-                  <th>
+                  <th data-col="<%= col[:key] %>">
                     <div class="col-label"><%= h(col[:label]) %></div>
                     <% unless col[:hint].empty? %>
                       <div class="col-hint"><%= h(col[:hint]) %></div>
@@ -80,6 +89,7 @@
 
         <p class="muted footnote">
           Paste tip: copy a block from Excel/Sheets (tab-separated) or a CSV file (comma-separated, with quotes around fields containing commas). Both are auto-detected. Cells overflow into adjacent columns; extra rows append until the <%= max_rows %>-row cap.
+          Citation is optional: it cites the law on its row (so it needs a Law Name). It is recorded only when that row creates the law; for a law already in the database it is ignored.
         </p>
       </section>
     </form>

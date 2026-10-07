@@ -12,6 +12,7 @@ MAX_ROWS      = 50
 
 # Column keys mirror the Rails-side payload contract.
 # `public_id` is optional; either `public_id` or `name` must be present per row.
+# `citation` is optional and cites the law on its row, so it needs a Law Name.
 COLUMNS = [
   { key: 'public_id',         label: 'Jurisdiction Public ID', hint: 'optional, e.g. KOR' },
   { key: 'jurisdiction_name', label: 'Jurisdiction Name',      hint: 'required if no public_id' },
@@ -19,7 +20,8 @@ COLUMNS = [
   { key: 'description',       label: 'Law Description',  hint: '' },
   { key: 'year',              label: 'Material Year',                   hint: 'YYYY' },
   { key: 'date_accepted',     label: 'Date Passed by Legislature',          hint: 'YYYY-MM-DD' },
-  { key: 'entry_into_force',  label: 'Entry into Force',       hint: 'YYYY-MM-DD' }
+  { key: 'entry_into_force',  label: 'Entry into Force',       hint: 'YYYY-MM-DD' },
+  { key: 'citation',          label: 'Citation',               hint: 'optional, source of the law' }
 ].freeze
 
 helpers do
@@ -84,8 +86,11 @@ post '/agreements' do
       date_accepted:    row['date_accepted'].to_s.strip,
       entry_into_force: row['entry_into_force'].to_s.strip
     }
-    # Skip rows where every agreement field is blank (jurisdiction-only row).
-    groups[key][:agreements] << agreement unless agreement.values.all?(&:empty?)
+    # Skip rows where every agreement field is blank (jurisdiction-only row). A citation
+    # alone doesn't make a law, so it's only sent along with one.
+    unless agreement.values.all?(&:empty?)
+      groups[key][:agreements] << agreement.merge(citation: row['citation'].to_s.strip)
+    end
   end
 
   payload = { jurisdictions: groups.values }
